@@ -23,7 +23,9 @@ exports.getProduct = (req, res, next) => {
         path: "/products",
       });
     })
-    .catch((e) => console.log("Get An Error While Fetching A Single Product", e));
+    .catch((e) =>
+      console.log("Get An Error While Fetching A Single Product", e)
+    );
 };
 
 exports.getIndex = (req, res, next) => {
@@ -39,24 +41,42 @@ exports.getIndex = (req, res, next) => {
 };
 
 exports.getCart = (req, res, next) => {
-  Cart.getCart((cart) => {
-    Product.fetchAll((products) => {
-      const cartProducts = [];
-      for (product of products) {
-        const cartProductData = cart.products.find(
-          (prod) => prod.id === product.id
-        );
-        if (cartProductData) {
-          cartProducts.push({ productData: product, qty: cartProductData.qty });
-        }
-      }
-      res.render("shop/cart", {
-        path: "/cart",
-        pageTitle: "Your Cart",
-        products: cartProducts,
-      });
+  req.user
+    .getCart()
+    .then((cart) => {
+      return cart
+        .getProducs()
+        .then((products) => {
+          res.render("shop/cart", {
+            path: "/cart",
+            pageTitle: "Your Cart",
+            products: products,
+          });
+        })
+        .catch((e) => console.log(e));
+    })
+    .catch(() => {
+      console.log("Error In Get Cart");
     });
-  });
+
+  // Cart.getCart((cart) => {
+  //   Product.fetchAll((products) => {
+  //     const cartProducts = [];
+  //     for (product of products) {
+  //       const cartProductData = cart.products.find(
+  //         (prod) => prod.id === product.id
+  //       );
+  //       if (cartProductData) {
+  //         cartProducts.push({ productData: product, qty: cartProductData.qty });
+  //       }
+  //     }
+  //     res.render("shop/cart", {
+  //       path: "/cart",
+  //       pageTitle: "Your Cart",
+  //       products: cartProducts,
+  //     });
+  //   });
+  // });
 };
 
 exports.postCart = (req, res, next) => {
