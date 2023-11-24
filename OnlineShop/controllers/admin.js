@@ -14,17 +14,31 @@ exports.postAddProduct = (req, res, next) => {
   const price = req.body.price;
   const description = req.body.description;
 
-  Product.create({
-    title: title,
-    price: price,
-    imageUrl: imageUrl,
-    description: description,
-  })
+  
+  req.user
+    .createProduct({ // user and product k beech me relation define kare baad. ye function se product create kare to userId auto add horahi
+      title: title,
+      price: price,
+      imageUrl: imageUrl,
+      description: description,
+    })
     .then(() => {
       console.log("Product Created");
       res.redirect("/admin/products");
     })
     .catch((e) => console.log("Got An Error While Creating A Product", e));
+
+  // Product.create({
+  //   title: title,
+  //   price: price,
+  //   imageUrl: imageUrl,
+  //   description: description,
+  // })
+  //   .then(() => {
+  //     console.log("Product Created");
+  //     res.redirect("/admin/products");
+  //   })
+  //   .catch((e) => console.log("Got An Error While Creating A Product", e));
 };
 
 exports.getEditProduct = (req, res, next) => {
@@ -82,16 +96,16 @@ exports.getProducts = (req, res, next) => {
     .catch((e) => console.log(e));
 };
 
-  exports.postDeleteProduct = (req, res, next) => {
-    const prodId = req.body.productId;
+exports.postDeleteProduct = (req, res, next) => {
+  const prodId = req.body.productId;
 
-    Product.findByPk(prodId)
-      .then((product) => {
-        return product.destroy();
-      })
-      .then((result) => {
-        console.log("Product Has Been Deleted");
-        res.redirect("/admin/products");  
-      })
-      .catch((e) => console.log("Got An Error While Deleting Product", e));
-  };
+  Product.findByPk(prodId)
+    .then((product) => {
+      return product.destroy();
+    })
+    .then((result) => {
+      console.log("Product Has Been Deleted");
+      res.redirect("/admin/products");
+    })
+    .catch((e) => console.log("Got An Error While Deleting Product", e));
+};
