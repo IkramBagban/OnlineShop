@@ -3,23 +3,23 @@ const MongoClient = mongodb.MongoClient;
 
 let _db;
 
-const mongoConnect = async (callback) => {
+const mongoConnect = (callback) => {
   MongoClient.connect(process.env.DB_URL)
     .then((client) => {
-      _db = client
+      _db = client;
       callback(client);
       console.log("connected!");
     })
     .catch((err) => console.log(err));
 };
 
-const getDb= ()=>{
-  if(_db){
-    return _db
+const getDb = () => {
+  if (_db) {
+    return _db;
   }
 
-  throw 'No Database Found!'
-}
+  throw "No Database Found!";
+};
 
 exports.mongoConnect = mongoConnect;
 exports.getDb = getDb;
