@@ -15,14 +15,8 @@ exports.postAddProduct = (req, res, next) => {
   const price = req.body.price;
   const description = req.body.description;
 
-  
-  req.user
-    .createProduct({ // user and product k beech me relation define kare baad. ye function se product create kare to userId auto add horahi
-      title: title,
-      price: price,
-      imageUrl: imageUrl,
-      description: description,
-    })
+  const product = new Product(title, price, description, imageUrl)
+  product.save()
     .then(() => {
       console.log("Product Created");
       res.redirect("/admin/products");

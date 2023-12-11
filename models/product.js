@@ -10,8 +10,9 @@ class Product {
 
   save() {
     const db = getDb();
-    db.collection("products")
-      .insertOne(this)
+    console.log(db)
+    return db.collection("products")
+      .insertOne(this) // jo instance se ham save function call karenge wo instance insert hojayenga database me.
       .then((result) => console.log(result))
       .catch((err) => console.log(err));
   }
