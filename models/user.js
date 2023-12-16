@@ -70,7 +70,7 @@ class User {
   }
 
   deleteItemFromCart(productId) {
-    console.log('befroe', this.cart.items)
+    console.log("befroe", this.cart.items);
 
     const updatedCartItems = this.cart.items.filter(
       (item) => item.productId.toString() !== productId.toString()
@@ -78,10 +78,30 @@ class User {
 
     const db = getDb();
 
-    return db.collection("users").updateOne(
-      { _id: new ObjectId(this._id) },
-      { $set: { cart: { items: updatedCartItems } } }
-    );
+    return db
+      .collection("users")
+      .updateOne(
+        { _id: new ObjectId(this._id) },
+        { $set: { cart: { items: updatedCartItems } } }
+      );
+  }
+
+  addOrder() {
+    console.log(".... adding order.....................................................")
+    const db = getDb();
+
+    return db
+      .collection("orders")
+      .insertOne(this.cart)
+      .then((result) => {
+        this.cart = { items: [] };
+        return db
+          .collection("users")
+          .updateOne(
+            { _id: new ObjectId(this._id) },
+            { $set: { cart: { items: {} } } }
+          );
+      });
   }
 
   static findById(prodId) {
