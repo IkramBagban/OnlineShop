@@ -76,7 +76,6 @@ class User {
       (item) => item.productId.toString() !== productId.toString()
     );
 
-    console.log('after',updatedCartItems)
     const db = getDb();
 
     return db.collection("users").updateOne(
