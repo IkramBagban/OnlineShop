@@ -56,8 +56,8 @@ class Product {
   static deleteById(prodId) {
     const db = getDb(); // get database
     db.collection("products") // Getting products collection.
-      .deleteOne({ _id: new mongodb.ObjectId(prodId) }) // deleting one product by filtering its id
-      .then((result) => console.log(result))
+    // deleting one product by filtering its id
+      .deleteOne({ _id: new mongodb.ObjectId(prodId) }).then((result) => console.log("Product Deleted"))
       .catch((err) => console.log(err));
   }
 }
