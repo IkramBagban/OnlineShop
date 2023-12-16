@@ -3,10 +3,10 @@ const { getDb } = require("../util/database");
 
 class User {
   constructor(username, email, cart, id) {
-      this.username = username;
-      this.email = email;
-      this.cart = cart; 
-      this._id = id;
+    this.username = username;
+    this.email = email;
+    this.cart = cart;
+    this._id = id;
   }
 
   save() {
@@ -21,7 +21,7 @@ class User {
 
   addToCart(product) {
     const db = getDb();
-    console.log("carts", this)
+    console.log("carts", this);
 
     const cartProductIndex = this.cart.items.findIndex((cp) => {
       return cp.productId.toString() === product._id.toString();
@@ -34,10 +34,10 @@ class User {
       newQuantity = this.cart.items[cartProductIndex].quantity + 1;
       updatedCartItems[cartProductIndex].quantity = newQuantity;
     } else {
-        updatedCartItems.push({
-            productId: new ObjectId(product._id),
-            quantity : newQuantity
-        })
+      updatedCartItems.push({
+        productId: new ObjectId(product._id),
+        quantity: newQuantity,
+      });
     }
     const updatedCart = { items: updatedCartItems };
     return db
@@ -48,6 +48,26 @@ class User {
       );
   }
 
+  getCart() {
+    const db = getDb();
+
+    const productIds = this.cart.items.map((item) => item.productId);
+
+    return db
+      .collection("products")
+      .find({ _id: { $in: productIds } })
+      .toArray()
+      .then((products) => {
+        return products.map((p) => {
+          return {
+            ...p,
+            quantity: this.cart.items.find(
+              (i) => i.productId.toString() === p._id.toString()
+            ).quantity,
+          };
+        });
+      });
+  }
   static findById(prodId) {
     const db = getDb();
 
