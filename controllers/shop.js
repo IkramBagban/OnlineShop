@@ -118,7 +118,6 @@ exports.postCartDeleteProduct = (req, res, next) => {
 };
 
 exports.postOrder = (req, res, next) => {
-  console.log('---in postorder---');
   req.user
     .addOrder()
     .then((result) => {
