@@ -68,6 +68,23 @@ class User {
         });
       });
   }
+
+  deleteItemFromCart(productId) {
+    console.log('befroe', this.cart.items)
+
+    const updatedCartItems = this.cart.items.filter(
+      (item) => item.productId.toString() !== productId.toString()
+    );
+
+    console.log('after',updatedCartItems)
+    const db = getDb();
+
+    return db.collection("users").updateOne(
+      { _id: new ObjectId(this._id) },
+      { $set: { cart: { items: updatedCartItems } } }
+    );
+  }
+
   static findById(prodId) {
     const db = getDb();
 
