@@ -20,3 +20,7 @@ const ProductSchema = new Schema({
     required: true,
   },
 });
+
+// Exporting the Mongoose model 'Product' created from the 'ProductSchema'.
+// Mongoose, by default, pluralizes the singular model name 'Product' by adding an 's' at the end ('Products') when creating the corresponding collection in the database.
+module.exports = mongoose.model('Product', ProductSchema)
