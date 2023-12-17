@@ -3,8 +3,10 @@ const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
 const ProductSchema = new Schema({
+  // _id is not provided because _id is created automatically by mongoose
+
   title: {
-    type: String, 
+    type: String,
     required: true,
   },
   price: {
@@ -24,4 +26,4 @@ const ProductSchema = new Schema({
 // Exporting the Mongoose model 'Product' created from the 'ProductSchema'.
 // mongoose takes model name here is product, turns it to all lowercase and takes the plural form of that name
 // and then it is being used as a collection name,
-module.exports = mongoose.model('Product', ProductSchema)
+module.exports = mongoose.model("Product", ProductSchema);

@@ -15,33 +15,23 @@ exports.postAddProduct = (req, res, next) => {
   const price = req.body.price;
   const description = req.body.description;
 
-  const product = new Product(
-    title,
-    price,
-    description,
-    imageUrl,
-    null,
-    req.user._id
-  );
+  // Creating a new instance of the 'Product' model by passing an object as a parameter.
+  // The keys of this object correspond to the defined keys in the 'ProductSchema'.
+  // The values represent the data we want to save in the database.
+  // _id is not provided because _id is created automatically by mongoose
+  const product = new Product({
+    title: title,
+    description: description,
+    imageUrl: imageUrl,
+    price: price,
+  });
   product
-    .save()
+    .save() // this save method is provided by mongoose
     .then(() => {
       console.log("Product Created");
       res.redirect("/admin/products");
     })
     .catch((e) => console.log("Got An Error While Creating A Product", e));
-
-  // Product.create({
-  //   title: title,
-  //   price: price,
-  //   imageUrl: imageUrl,
-  //   description: description,
-  // })
-  //   .then(() => {
-  //     console.log("Product Created");
-  //     res.redirect("/admin/products");
-  //   })
-  //   .catch((e) => console.log("Got An Error While Creating A Product", e));
 };
 
 exports.getEditProduct = (req, res, next) => {
