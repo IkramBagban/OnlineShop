@@ -22,5 +22,6 @@ const ProductSchema = new Schema({
 });
 
 // Exporting the Mongoose model 'Product' created from the 'ProductSchema'.
-// Mongoose, by default, pluralizes the singular model name 'Product' by adding an 's' at the end ('Products') when creating the corresponding collection in the database.
+// mongoose takes model name here is product, turns it to all lowercase and takes the plural form of that name
+// and then it is being used as a collection name,
 module.exports = mongoose.model('Product', ProductSchema)
