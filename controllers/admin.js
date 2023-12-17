@@ -102,7 +102,8 @@ exports.getProducts = (req, res, next) => {
 exports.postDeleteProduct = (req, res, next) => {
   const prodId = req.body.productId;
 
-  Product.deleteById(prodId)
+  // find by id and delete is provided by mongoose which deletes the product
+  Product.findByIdAndDelete(prodId)
     .then((result) => {
       console.log("Product Has Been Deleted");
       res.redirect("/admin/products");
