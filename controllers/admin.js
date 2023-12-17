@@ -1,3 +1,4 @@
+const product = require("../models/product");
 const Product = require("../models/product");
 
 exports.getAddProduct = (req, res, next) => {
@@ -63,16 +64,22 @@ exports.postEditProduct = (req, res, next) => {
   const updatedImageUrl = req.body.imageUrl;
   const updatedDesc = req.body.description;
 
-  const product = new Product(
-    updatedTitle,
-    updatedPrice,
-    updatedDesc,
-    updatedImageUrl,
-    prodId
-  );
+  // steps to update the product.
+  // step 1 : first find the product using findById method.
+  // it returns the product. in then block we can get product
+  // step 2 : update the product 
+  // step 3 : call save method
 
-  product
-    .save()
+  Product.findById(prodId)
+    .then((product) => {
+      // Update product properties
+      product.title = updatedTitle;
+      product.price = updatedPrice;
+      product.imageUrl = updatedImageUrl;
+      product.description = updatedDesc;
+      product.save(); // saving the updated product.
+      
+    })
     .then((result) => {
       console.log("PRODUCT UPDATED");
       res.redirect("/admin/products");
