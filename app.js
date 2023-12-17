@@ -19,9 +19,9 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, "public")));
 
 app.use((req, res, next) => {
-  const USER = { username: "ikram", email: "bagbanikram@gmail.com" };
-  req.user = USER;
-  next();
+      const USER = { username: "ikram", email: "bagbanikram@gmail.com" };
+      req.user = USER;
+      next();
 });
 
 app.use("/admin", adminRoutes);
