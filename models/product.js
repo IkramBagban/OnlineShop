@@ -21,6 +21,11 @@ const ProductSchema = new Schema({
     type: String,
     required: true,
   },
+  userId : {
+    type : Schema.ObjectId,
+    ref : 'User',
+    required : true
+  }
 });
 
 // Exporting the Mongoose model 'Product' created from the 'ProductSchema'.

@@ -25,6 +25,7 @@ exports.postAddProduct = (req, res, next) => {
     description: description,
     imageUrl: imageUrl,
     price: price,
+    userId : req.user // if we give whole object still mongoose will get the _id. (mongoose is smart)
   });
   product
     .save() // this save method is provided by mongoose
