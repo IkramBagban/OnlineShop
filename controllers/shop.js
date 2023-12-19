@@ -84,7 +84,7 @@ exports.postCartDeleteProduct = (req, res, next) => {
 exports.postOrder = (req, res, next) => {
   req.user
     .populate("cart.items.productId")
-    .then((result) => {
+    .then((user) => {
       const products = user.cart.items.map((i) => ({
         quantity: i.quantity,
         // i.product se product me sirf id save hongi. but if we do like this
@@ -99,6 +99,9 @@ exports.postOrder = (req, res, next) => {
         },
       });
       return order.save();
+    })
+    .then((result) => {
+      return req.user.clearCart();
     })
     .then((result) => {
       res.redirect("/orders");
