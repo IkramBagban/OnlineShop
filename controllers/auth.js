@@ -14,13 +14,13 @@ exports.getLogin = (req, res, next) => {
 
 // Storing data in a session
 exports.postLogin = (req, res, next) => {
-  User.findById("65806c272c1279a21240f881")
-    .then((user) => {
-      req.session.isLoggedIn = true;
-      req.session.user = user;
-      res.redirect("/");
-    })
-    .catch((err) => console.log(err));
+    User.findById("65806c272c1279a21240f881")
+      .then((user) => {
+        req.session.isLoggedIn = true;
+        req.session.user = user;
+        res.redirect("/");
+      })
+      .catch((err) => console.log(err));
 };
 
 exports.postLogout = (req, res, next) => {
