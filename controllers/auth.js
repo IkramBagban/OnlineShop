@@ -9,8 +9,8 @@ exports.getLogin = (req, res, next) => {
   });
 };
 
+// Storing data in a session
 exports.postLogin = (req, res, next) => {
-  // res.setHeader('Set-Cookie', 'loggedIn=true; Max-age=10')
   req.session.isLoggedIn = true;
   res.redirect("/");
 };
