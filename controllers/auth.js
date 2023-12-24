@@ -1,3 +1,4 @@
+const bcrypt = require("bcrypt");
 const User = require("../models/user");
 
 exports.getLogin = (req, res, next) => {
@@ -39,7 +40,14 @@ exports.postSignup = (req, res, next) => {
       // if new email is already exist in db. mean the user is already exist. so do nothing.
       if (user) return res.redirect("/signup");
 
-      const u = new User({ email, password, cart: { items: [] } });
+      return bcrypt.hash(password, 12);
+    })
+    .then((hashedPassword) => {
+      const u = new User({
+        email: email,
+        password: hashedPassword, // hashed password
+        cart: { items: [] },
+      });
       return u.save();
     })
     .then((result) => {
