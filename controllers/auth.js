@@ -18,16 +18,40 @@ exports.getSignup = (req, res, next) => {
 };
 
 exports.postLogin = (req, res, next) => {
-  User.findById("5bab316ce0a7c75f783cb8a8")
+  const email = req.body.email;
+  const password = req.body.password;
+
+  User.findOne({ email: email })
     .then((user) => {
-      req.session.isLoggedIn = true;
-      req.session.user = user;
-      req.session.save((err) => {
-        console.log(err);
-        res.redirect("/");
-      });
+      if (!user) {
+        return res.redirect("/login");
+      }
+
+      // comparing user entered password with present user encrypted password using compare method of bcrypt.
+      bcrypt
+        .compare(password, user.password)
+        // after entered password is correct. is matched will return true else false.
+        .then((isMatched) => {
+
+          // if password matched successfully. then set session variable and redirect.
+          if (isMatched) {
+            // Setting session variables for authentication
+            req.session.isLoggedIn = true;
+            req.session.user = user;
+            return req.session.save((err) => {
+              console.log(err);
+              res.redirect("/");
+            });
+          }
+
+          //if password don't match redirect to login page.
+          res.redirect("/login");
+        });
     })
-    .catch((err) => console.log(err));
+    .catch((err) => {
+      console.log(err);
+      res.redirect("/login");
+    });
 };
 
 exports.postSignup = (req, res, next) => {
@@ -40,15 +64,15 @@ exports.postSignup = (req, res, next) => {
       // if new email is already exist in db. mean the user is already exist. so do nothing.
       if (user) return res.redirect("/signup");
 
-      return bcrypt.hash(password, 12);
-    })
-    .then((hashedPassword) => {
-      const u = new User({
-        email: email,
-        password: hashedPassword, // hashed password
-        cart: { items: [] },
+      // encrypt the password. before saving into db. 
+      return bcrypt.hash(password, 12).then((hashedPassword) => {
+        const u = new User({
+          email: email,
+          password: hashedPassword, // hashed password
+          cart: { items: [] },
+        });
+        u.save();
       });
-      return u.save();
     })
     .then((result) => {
       res.redirect("/login");
