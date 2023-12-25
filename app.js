@@ -6,6 +6,7 @@ const mongoose = require("mongoose");
 
 const session = require("express-session");
 const mongoDBStore = require("connect-mongodb-session")(session);
+const csrf = require("csurf");
 
 require("dotenv").config();
 
@@ -18,6 +19,7 @@ const store = new mongoDBStore({
   collection: "sessions",
 });
 
+const csrfProtection = csrf();
 app.set("view engine", "ejs");
 app.set("views", "views");
 
@@ -35,6 +37,8 @@ app.use(
     store: store,
   })
 );
+
+app.use(csrfProtection);
 
 app.use((req, res, next) => {
   if (!req.session.user) {
