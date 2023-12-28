@@ -4,7 +4,7 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
 
-  const PORT = process.env.PORT || 9800;
+  const PORT = process.env.PORT || 2000;
 
 const session = require("express-session");
 const mongoDBStore = require("connect-mongodb-session")(session);
