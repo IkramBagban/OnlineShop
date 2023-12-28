@@ -1,3 +1,5 @@
 node_modules
 pass.js
 .env
+
+/app.js
