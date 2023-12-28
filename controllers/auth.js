@@ -220,7 +220,7 @@ exports.postNewPassword = (req, res, next) => {
       resetUser.resetToken = undefined;
       resetUser.resetTokenExpiration = undefined;
       return resetUser.save();
-    }).then(result =>{
+    }).then(() =>{
       res.redirect('/login')
     })
     .catch((err) => console.log(err));

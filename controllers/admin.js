@@ -38,10 +38,11 @@ exports.getEditProduct = (req, res, next) => {
     return res.redirect("/");
   }
   const prodId = req.params.productId;
-  Product.findById(prodId)
+  // Product.findById(prodId)
+  Product.findOne({ _id: prodId, userId: req.user._id })
     .then((product) => {
       if (!product) {
-        return res.redirect("/");
+        return res.redirect("/admin/products");
       }
       res.render("admin/edit-product", {
         pageTitle: "Edit Product",
@@ -81,7 +82,7 @@ exports.postEditProduct = (req, res, next) => {
 
 exports.getProducts = (req, res, next) => {
   // getting only those product which this user has created.
-  Product.find({userId : req.user._id})
+  Product.find({ userId: req.user._id })
     .then((products) => {
       console.log(products);
       res.render("admin/products", {
