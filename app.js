@@ -4,6 +4,8 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
 
+  const PORT = process.env.PORT || 2000;
+
 const session = require("express-session");
 const mongoDBStore = require("connect-mongodb-session")(session);
 const csrf = require("csurf");
@@ -70,7 +72,7 @@ app.use(errorController.get404);
 mongoose
   .connect(process.env.DB_URL)
   .then((result) => {
-    app.listen(2000);
+    app.listen(PORT);
   })
   .catch((err) => {
     console.log(err);
