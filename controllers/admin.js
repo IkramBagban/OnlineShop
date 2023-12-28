@@ -84,7 +84,6 @@ exports.getProducts = (req, res, next) => {
   // getting only those product which this user has created.
   Product.find({ userId: req.user._id })
     .then((products) => {
-      console.log(products);
       res.render("admin/products", {
         prods: products,
         pageTitle: "Admin Products",
