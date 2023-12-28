@@ -153,7 +153,7 @@ exports.postReset = (req,res,next) => {
       }
 
       user.resetToken = token;
-      user.resetTokenExpiration = Date.now + 3600000;
+      user.resetTokenExpiration = Date.now() + 3600000;
       return user.save();
     }).then(result =>{
       transporter.sendMail({
@@ -162,10 +162,11 @@ exports.postReset = (req,res,next) => {
         subject : 'Password Reset',
         html : `
         <p>You requested a password reset</p>
-        <p>Click this <a href="http://localhost:2000/reset/${token}" >Link</a></p>
+        <p>Click this <a href="http://localhost:2000/reset/${token}">link</a> to reset your account.</p>
         `
 
       })
+      res.redirect('/')
     }).catch(err => console.log(err))
   })
 }
