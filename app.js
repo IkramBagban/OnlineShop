@@ -72,10 +72,11 @@ app.use(errorController.get404);
 mongoose
   .connect(process.env.DB_URL)
   .then((result) => {
-    app.listen(PORT);
+    console.log('db connected')
   })
   .catch((err) => {
     console.log(err);
   });
+  app.listen(PORT);
 
   module.exports = app;
