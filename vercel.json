@@ -3,8 +3,7 @@
   "builds": [
     {
       "src": "package.json",
-      "use": "@vercel/node",
-      "config": { "distDir": "dist" }
+      "use": "@vercel/node"
     }
   ],
   "routes": [
@@ -16,9 +15,5 @@
       "src": "/(.*)",
       "dest": "/app.js"
     }
-  ],
-  "env": {
-    "NODE_ENV": "production"
-  },
-  "excludeFiles": ["node_modules/", "*.md"]
+  ]
 }
