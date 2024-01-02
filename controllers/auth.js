@@ -50,7 +50,7 @@ exports.postLogin = (req, res, next) => {
 
   console.log(errors)
   if (!errors.isEmpty()) {
-    return res.status(404).render("auth/login", {
+    return res.status(422).render("auth/login", {
       path: "/login",
       pageTitle: "Login",
       errorMessage: errors.array()[0].msg,
