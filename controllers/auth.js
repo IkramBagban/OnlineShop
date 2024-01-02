@@ -29,7 +29,7 @@ exports.getLogin = (req, res, next) => {
       email: "",
       password: "",
     },
-    validationErrors:[]
+    validationErrors: [],
   });
 };
 
@@ -49,8 +49,7 @@ exports.getSignup = (req, res, next) => {
       password: "",
       confirmPassword: "",
     },
-    validationErrors : []
-
+    validationErrors: [],
   });
 };
 
@@ -70,12 +69,24 @@ exports.postLogin = (req, res, next) => {
         email: email,
         password: password,
       },
-      validationErrors : errors.array()
+      validationErrors: errors.array(),
     });
   }
 
   User.findOne({ email: email })
     .then((user) => {
+      if (!user) {
+        return res.status(422).render("auth/login", {
+          path: "/login",
+          pageTitle: "Login",
+          errorMessage: "Invalid Email Or Password",
+          oldInput: {
+            email: email,
+            password: password,
+          },
+          validationErrors: [],
+        });
+      }
       // comparing user entered password with present user encrypted password using compare method of bcrypt.
       bcrypt
         .compare(password, user.password)
@@ -93,8 +104,16 @@ exports.postLogin = (req, res, next) => {
           }
 
           //if password don't match redirect to login page.
-          req.flash("error", "Invalid email or password.");
-          res.redirect("/login");
+          return res.status(422).render("auth/login", {
+            path: "/login",
+            pageTitle: "Login",
+            errorMessage: 'Invalid Email Or Password',
+            oldInput: {
+              email: email,
+              password: password,
+          },
+          validationErrors : []
+        });
         })
         .catch((err) => {
           console.log(err);
@@ -120,7 +139,7 @@ exports.postSignup = (req, res, next) => {
         password: password,
         confirmPassword: confirmPassword,
       },
-      validationErrors : errors.array()
+      validationErrors: errors.array(),
     });
   }
 
