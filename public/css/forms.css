@@ -22,6 +22,6 @@
   outline-color: #3b9fdd;
 }
 
-.form-control input .invalid{
+.form-control input.invalid{
   border-color: red;
 }

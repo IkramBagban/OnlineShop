@@ -23,9 +23,10 @@ router.post(
             return Promise.reject("Email Doesn't Exist.");
           }
         });
-      }),
+      })
+      .normalizeEmail(),
 
-      body('password', 'Invalid Password!').isLength({min : 5})
+    body("password", "Invalid Password!").isLength({ min: 5 }).trim(),
   ],
   authController.postLogin
 );
@@ -42,21 +43,25 @@ router.post(
             return Promise.reject("Email already exist.");
           }
         });
-      }),
+      })
+      .normalizeEmail(),
 
     body("password")
       .isLength({ min: 5 })
       .withMessage(
         "Password must be at least 5 characters long and alphanumeric."
       )
-      .isAlphanumeric(),
-    body("confirmPassword").custom((val, { req }) => {
-      if (val !== req.body.password) {
-        throw new Error("Passwd do not match.");
-      }
-
-      return true;
-    }),
+      .isAlphanumeric()
+      .trim(),
+    body("confirmPassword")
+      .custom((val, { req }) => {
+        if (val !== req.body.password) {
+          throw new Error("Passwd do not match.");
+        }
+        return true;
+      })
+      .isAlphanumeric()
+      .trim(),
   ],
   authController.postSignup
 );
