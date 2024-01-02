@@ -25,6 +25,10 @@ exports.getLogin = (req, res, next) => {
     path: "/login",
     pageTitle: "Login",
     errorMessage: message,
+    oldInput: {
+      email: "",
+      password: "",
+    },
   });
 };
 
@@ -39,6 +43,11 @@ exports.getSignup = (req, res, next) => {
     path: "/signup",
     pageTitle: "Signup",
     errorMessage: message,
+    oldInput: {
+      email: "",
+      password: "",
+      confirmPassword: "",
+    },
   });
 };
 
@@ -48,55 +57,65 @@ exports.postLogin = (req, res, next) => {
 
   const errors = validationResult(req);
 
-  console.log(errors)
+  console.log(errors);
   if (!errors.isEmpty()) {
     return res.status(422).render("auth/login", {
       path: "/login",
       pageTitle: "Login",
       errorMessage: errors.array()[0].msg,
+      oldInput: {
+        email: email,
+        password: password,
+      },
     });
   }
 
-  User.findOne({email:email}).then(user=>{
+  User.findOne({ email: email })
+    .then((user) => {
+      // comparing user entered password with present user encrypted password using compare method of bcrypt.
+      bcrypt
+        .compare(password, user.password)
+        // after entered password is correct. is matched will return true else false.
+        .then((isMatched) => {
+          // if password matched successfully. then set session variable and redirect.
+          if (isMatched) {
+            // Setting session variables for authentication
+            req.session.isLoggedIn = true;
+            req.session.user = user;
+            return req.session.save((err) => {
+              console.log(err);
+              res.redirect("/");
+            });
+          }
 
-
-  // comparing user entered password with present user encrypted password using compare method of bcrypt.
-  bcrypt
-    .compare(password, user.password)
-    // after entered password is correct. is matched will return true else false.
-    .then((isMatched) => {
-      // if password matched successfully. then set session variable and redirect.
-      if (isMatched) {
-        // Setting session variables for authentication
-        req.session.isLoggedIn = true;
-        req.session.user = user;
-        return req.session.save((err) => {
+          //if password don't match redirect to login page.
+          req.flash("error", "Invalid email or password.");
+          res.redirect("/login");
+        })
+        .catch((err) => {
           console.log(err);
-          res.redirect("/");
+          res.redirect("/login");
         });
-      }
-
-      //if password don't match redirect to login page.
-      req.flash("error", "Invalid email or password.");
-      res.redirect("/login");
     })
-    .catch((err) => {
-      console.log(err);
-      res.redirect("/login");
-    })
-  }).catch(err =>console.log(err));
+    .catch((err) => console.log(err));
 };
 
 exports.postSignup = (req, res, next) => {
   const email = req.body.email;
   const password = req.body.password;
+  const confirmPassword = req.body.confirmPassword;
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     console.log(errors.array()[0].msg);
     return res.status(422).render("auth/signup", {
       path: "signup",
       pageTitle: "signup",
-      errorMessage: errors.array()[0].msg || "error",
+      errorMessage: errors.array()[0].msg,
+      oldInput: {
+        email: email,
+        password: password,
+        confirmPassword: confirmPassword,
+      },
     });
   }
 
