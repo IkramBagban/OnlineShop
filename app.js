@@ -102,7 +102,6 @@
 
   app.use((error, req, res, next) => {
     // if(!req.session?.isLoggedIn) return next();
-    console.log('req.session', req.session)
     res.status(500).render("500", {
       pageTitle: "Error!",
       path: "/500",
