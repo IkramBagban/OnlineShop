@@ -1,12 +1,12 @@
 const path = require("path");
 const fs = require("fs");
 
-const PDFDocument = require('pdfkit')
+const PDFDocument = require("pdfkit");
 
 const Product = require("../models/product");
 const Order = require("../models/order");
 
-const ITEMS_PER_PAGE = 2;
+const ITEMS_PER_PAGE = 1;
 
 exports.getProducts = (req, res, next) => {
   Product.find()
@@ -42,23 +42,67 @@ exports.getProduct = (req, res, next) => {
     });
 };
 
+// exports.getIndex = (req, res, next) => {
+//   const page = +req.query.page || 1;
+//   console.log("page", page);
+//   let totalItems;
+//   Product.find()
+//     .countDocuments((numProducts) => {
+//       console.log(numProducts);
+//       totalItems = numProducts;
+//       return Product.find()
+//         .skip((page - 1) * ITEMS_PER_PAGE)
+//         .limit(ITEMS_PER_PAGE);
+//     })
+//     .then((products) => {
+//       res.render("shop/index", {
+//         prods: products,
+//         pageTitle: "Shop",
+//         path: "/",
+//         currentPage: page,
+//         hasNextPage: ITEMS_PER_PAGE * page < totalItems,
+//         hasPreviousPage: page > 1,
+//         nextPage: page + 1,
+//         previousPage: page - 1,
+//         lastPage: Math.ceil(totalItems / ITEMS_PER_PAGE),
+//       });
+//     })
+//     .catch((err) => {
+//       const error = new Error(err);
+//       error.httpStatusCode = 500;
+//       return next(error);
+//     });
+// };
 exports.getIndex = (req, res, next) => {
+  const page = +req.query.page || 1;
+  console.log("Page:", page);
 
-  const page = req.query.page;
+  let totalItems;
   Product.find()
-    .skip((page-1) * ITEMS_PER_PAGE)
-    .limit(ITEMS_PER_PAGE)
+    .count()
+    .then((numProducts) => {
+      console.log("Number of Products:", numProducts);
+      totalItems = numProducts;
+      return Product.find()
+        .skip((page - 1) * ITEMS_PER_PAGE)
+        .limit(ITEMS_PER_PAGE);
+    })
     .then((products) => {
+      console.log("Products:", products);
       res.render("shop/index", {
         prods: products,
         pageTitle: "Shop",
         path: "/",
-        // These variables are now available through res.locals
-        // isAuthenticated: req.session.isLoggedIn,
-        // csrfToken : req.csrfToken()
+        currentPage: page,
+        hasNextPage: ITEMS_PER_PAGE * page < totalItems,
+        hasPreviousPage: page > 1,
+        nextPage: page + 1,
+        previousPage: page - 1,
+        lastPage: Math.ceil(totalItems / ITEMS_PER_PAGE),
       });
     })
     .catch((err) => {
+      console.error("Error:", err);
       const error = new Error(err);
       error.httpStatusCode = 500;
       return next(error);
@@ -170,34 +214,34 @@ exports.getInvoice = (req, res, next) => {
 
       const invoiceName = "invoice-" + orderId + ".pdf";
       const invoicePath = path.resolve("data", "invoices", invoiceName);
-     
+
       const pdfDoc = new PDFDocument();
       res.setHeader("Content-Type", "application/pdf");
       res.setHeader(
         "Content-Disposition",
         'attachment; filename="' + invoiceName + '" '
       );
-      
-        pdfDoc.pipe(fs.createWriteStream(invoicePath))
-        pdfDoc.pipe(res);
 
-        pdfDoc.fontSize(20).text('Invoice',{
-          underline : true
-        })
-        pdfDoc.text('--------------')
-        let totalPrice = 0;
+      pdfDoc.pipe(fs.createWriteStream(invoicePath));
+      pdfDoc.pipe(res);
 
-        order.products.forEach(prod => {
-          totalPrice += prod.quantity * prod.product.price
+      pdfDoc.fontSize(20).text("Invoice", {
+        underline: true,
+      });
+      pdfDoc.text("--------------");
+      let totalPrice = 0;
 
-          pdfDoc.text(`${prod.product.title} - ${prod.quantity} x $ ${prod.product.price} `)
-        })
+      order.products.forEach((prod) => {
+        totalPrice += prod.quantity * prod.product.price;
 
-        pdfDoc.text('--------------') 
-        pdfDoc.text("total price " + totalPrice)
-        pdfDoc.end();
+        pdfDoc.text(
+          `${prod.product.title} - ${prod.quantity} x $ ${prod.product.price} `
+        );
+      });
 
-
+      pdfDoc.text("--------------");
+      pdfDoc.text("total price " + totalPrice);
+      pdfDoc.end();
     })
     .catch((err) => {
       next(err);
