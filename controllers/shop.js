@@ -1,5 +1,6 @@
 const path = require("path");
 const fs = require("fs");
+const Stripe = require("stripe")(process.env.STRIPE_SECRETkEY);
 
 const PDFDocument = require("pdfkit");
 
@@ -12,7 +13,7 @@ exports.getProducts = (req, res, next) => {
   const page = +req.query.page || 1;
   console.log("Page:", page);
 
-  let totalItems;
+  let totalItems; 
   Product.find()
     .count()
     .then((numProducts) => {
@@ -139,21 +140,135 @@ exports.postCartDeleteProduct = (req, res, next) => {
     });
 };
 
+// exports.getCheckout = (req, res, next) => {
+//   req.user
+//     .populate("cart.items.productId")
+//     .then((user) => {
+//       const products = user.cart.items;
+//       let total = 0;
+//       products.forEach((p) => {
+//         total += p.quantity * p.productId.price;
+//       });
+//       console.log('before session')
+//       return Stripe.checkout.sessions.create({
+//         payment_method_types : ['card'],
+//         line_items : products.map(p=>{
+//           console.log('p', p)
+//           return {
+//             name : p.productId.title,
+//             description : p.productId.description,
+//             amount : +(p.productId.price * 100),
+//             currency : 'usd',
+//             quantity : p.quantity
+//           }
+//         }),
+//         success_url : req.protocol + '://' + req.get('host') + '/checkout/success',
+//         cancel_url : req.protocol + '://' + req.get('host') + '/checkout/cancel',
+//       }).then((session) => {
+//         console.log('after sesssion ')
+//         res.render("shop/checkout", {
+//           path: "/checkout",
+//           pageTitle: "Checkout",
+//           products: products,
+//           totalSum: total,
+//           session: session.id,
+//         });
+//       });
+//     })
 exports.getCheckout = (req, res, next) => {
   req.user
     .populate("cart.items.productId")
     .then((user) => {
       const products = user.cart.items;
       let total = 0;
-      products.forEach(p =>{
-        total += p.quantity * p.productId.price
-      })
-      res.render("shop/checkout", {
-        path: "/checkout",
-        pageTitle: "Checkout",
-        products: products,
-        totalSum : total
+      products.forEach((p) => {
+        total += p.quantity * p.productId.price;
       });
+      console.log("before session");
+      return Stripe.checkout.sessions
+        .create({
+          payment_method_types: ["card"],
+          line_items: products.map((p) => {
+            return {
+              price_data: {
+                currency: "usd",
+                product_data: {
+                  name: p.productId.title,
+                  description: p.productId.description,
+                },
+                unit_amount: +(p.productId.price * 100), // Price in cents
+              },
+              quantity: p.quantity,
+            };
+          }),
+
+          mode: "payment", // Add this line
+          success_url:
+            req.protocol + "://" + req.get("host") + "/checkout/success",
+          cancel_url:
+            req.protocol + "://" + req.get("host") + "/checkout/cancel",
+        })
+        .then((session) => {
+          console.log("after session ");
+          console.log("session", session);
+          res.render("shop/checkout", {
+            path: "/checkout",
+            pageTitle: "Checkout",
+            products: products,
+            totalSum: total,
+            session: session.id,
+          });
+        });
+    })
+    .catch((error) => {
+      if (error.type === "StripeCardError") {
+        console.error("A payment error occurred:", error.message);
+      } else if (error.type === "StripeInvalidRequestError") {
+        console.error("An invalid request occurred:", error.message);
+      } else if (error.type === "StripeAPIError") {
+        console.error("A Stripe API error occurred:", error.message);
+      } else {
+        console.error("An unexpected error occurred:", error);
+      }
+    });
+  // catch((error) => {
+  //   if (error instanceof Stripe.errors.CardError) {
+  //     console.error("A payment error occurred:", error.message);
+  //   } else if (error instanceof Stripe.errors.InvalidRequestError) {
+  //     console.error("An invalid request occurred:", error.message);
+  //   } else if (error instanceof Stripe.errors.StripeError) {
+  //     console.error("Another Stripe-related error occurred:", error.message);
+  //   } else {
+  //     console.error("An unexpected error occurred:", error);
+  //   }
+  //   console.log('on catch')
+  //   // const error = new Error(err);
+  //   // error.httpStatusCode = 500;
+  //   // return next(error);
+  // });
+};
+
+exports.getCheckoutSuccess = (req, res, next) => {
+  req.user
+    .populate("cart.items.productId")
+    .then((user) => {
+      const products = user.cart.items.map((i) => {
+        return { quantity: i.quantity, product: { ...i.productId._doc } };
+      });
+      const order = new Order({
+        user: {
+          email: req.user.email,
+          userId: req.user,
+        },
+        products: products,
+      });
+      return order.save();
+    })
+    .then((result) => {
+      return req.user.clearCart();
+    })
+    .then(() => {
+      res.redirect("/orders");
     })
     .catch((err) => {
       const error = new Error(err);
