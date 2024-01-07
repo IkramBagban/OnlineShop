@@ -184,7 +184,7 @@ exports.getCheckout = (req, res, next) => {
       products.forEach((p) => {
         total += p.quantity * p.productId.price;
       });
-      console.log("before session");
+
       return Stripe.checkout.sessions
         .create({
           payment_method_types: ["card"],
@@ -209,8 +209,6 @@ exports.getCheckout = (req, res, next) => {
             req.protocol + "://" + req.get("host") + "/checkout/cancel",
         })
         .then((session) => {
-          console.log("after session ");
-          console.log("session", session);
           res.render("shop/checkout", {
             path: "/checkout",
             pageTitle: "Checkout",
@@ -230,22 +228,11 @@ exports.getCheckout = (req, res, next) => {
       } else {
         console.error("An unexpected error occurred:", error);
       }
+
+      error = new Error(error);
+      error.httpStatusCode = 500;
+      return next(error);
     });
-  // catch((error) => {
-  //   if (error instanceof Stripe.errors.CardError) {
-  //     console.error("A payment error occurred:", error.message);
-  //   } else if (error instanceof Stripe.errors.InvalidRequestError) {
-  //     console.error("An invalid request occurred:", error.message);
-  //   } else if (error instanceof Stripe.errors.StripeError) {
-  //     console.error("Another Stripe-related error occurred:", error.message);
-  //   } else {
-  //     console.error("An unexpected error occurred:", error);
-  //   }
-  //   console.log('on catch')
-  //   // const error = new Error(err);
-  //   // error.httpStatusCode = 500;
-  //   // return next(error);
-  // });
 };
 
 exports.getCheckoutSuccess = (req, res, next) => {
