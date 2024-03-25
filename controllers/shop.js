@@ -161,7 +161,9 @@ exports.getCheckout = (req, res, next) => {
                   name: p.productId.title,
                   description: p.productId.description,
                 },
-                unit_amount: +(p.productId.price * 100),
+                // unit_amount: +(p.productId.price * 100),
+                unit_amount:Math.round(p.productId.price * 100),
+                
               },
               quantity: p.quantity,
             };

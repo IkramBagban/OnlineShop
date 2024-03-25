@@ -106,7 +106,7 @@
       pageTitle: "Error!",
       path: "/500",
       isAuthenticated: req.session.isLoggedIn,
-    });
+    }); 
   });
 
   mongoose
